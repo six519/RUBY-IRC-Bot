@@ -64,14 +64,26 @@ class RubyIRC
 				sendMessage "JOIN #" << @ircRoom
 			elsif buffer =~ /PING :/i
 				sendMessage buffer.sub!(/PING/,"PONG")
+			elsif buffer =~ Regexp.new("JOIN \#" << @ircRoom)
+				if @ircNick != extractNick(buffer)
+					#Auto Greeter
+					sendMessage "PRIVMSG #" << @ircRoom << " :Hi " << extractNick(buffer) << "!"
+				end
 			end
 			
-			#ADD Auto greeter and command handler below the PONG (another elsif)
+			#ADD command handler below the auto greeter line (another elsif)
 		end	
 	end
 	
 	def sendMessage(msg)
 		@socket.puts msg << "\r\n"
+	end
+	
+	def extractNick(str)
+		tmpStr = str.split ":"
+		tmpStr = tmpStr[1].split "!"
+		
+		return tmpStr[0]
 	end
 
 end
